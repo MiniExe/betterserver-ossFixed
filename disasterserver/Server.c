@@ -131,7 +131,8 @@ bool peer_identity_process(PeerData* v, const char* addr, bool is_banned, uint64
 		server_send_msg(v->server, v->peer, "build from " CLRCODE_PUR  __DATE__ " " CLRCODE_GRN  __TIME__ CLRCODE_RST);
 		server_send_msg(v->server, v->peer, msg);
 		server_send_msg(v->server, v->peer, "-----------------------");
-		server_send_msg(v->server, v->peer, g_config.motd);
+		if(g_config.motd[0] != '\0')
+			server_send_msg(v->server, v->peer, g_config.motd);
 
 		if (v->op)
 			server_send_msg(v->server, v->peer, CLRCODE_GRN "you're an operator on this server" CLRCODE_RST);
@@ -449,17 +450,16 @@ bool server_disconnect(Server* server, ENetPeer* peer, DisconnectReason reason, 
 		if(data->disconnecting)
 			return true;
 
-		// FIXME: crashes v110 too lazy to fix
-		// if(reason == DR_OTHER && text != NULL)
-		// {
-		// 	Packet pack;
-		// 	PacketCreate(&pack, SERVER_PLAYER_FORCE_DISCONNECT);
-		// 	PacketWrite(&pack, packet_write8, reason);
-		// 	PacketWrite(&pack, packet_writestr, __Str(text));
-		// 	packet_send(peer, &pack, true);
-		// 	enet_peer_disconnect_later(peer, reason);
-		// }
-		// else
+		if(reason == DR_OTHER && text != NULL)
+		{
+			Packet pack;
+			PacketCreate(&pack, SERVER_PLAYER_FORCE_DISCONNECT);
+			PacketWrite(&pack, packet_write8, reason);
+			PacketWrite(&pack, packet_writestr, __Str(text));
+			packet_send(peer, &pack, true);
+			enet_peer_disconnect_later(peer, reason);
+		}
+		else
 			enet_peer_disconnect(peer, reason);
 
 		if(!text)
@@ -799,6 +799,7 @@ bool server_cmd_handle(Server* server, unsigned long hash, PeerData* v, String* 
 			snprintf(lobby_msg, 128, CLRCODE_GRA ".lobby" CLRCODE_RST " choose lobby (1-%d)", disaster_count());
 
 			RAssert(server_send_msg(v->server, v->peer, CLRCODE_GRA ".info" CLRCODE_RST " server info"));
+			RAssert(server_send_msg(v->server, v->peer, CLRCODE_GRA ".ver" CLRCODE_RST " version info"));
 			RAssert(server_send_msg(v->server, v->peer, lobby_msg));
 			RAssert(server_send_msg(v->server, v->peer, CLRCODE_GRA ".vk" CLRCODE_RST " vote kick"));
 			RAssert(server_send_msg(v->server, v->peer, CLRCODE_GRA ".vp" CLRCODE_RST " vote practice mode"));
@@ -831,7 +832,19 @@ bool server_cmd_handle(Server* server, unsigned long hash, PeerData* v, String* 
 			server_send_msg(v->server, v->peer, g_config.motd);
 			break;
 		}
-		
+
+		case CMD_VER:
+		{
+			server_send_msg(v->server, v->peer, CLRCODE_RST "-------------------");
+			server_send_msg(v->server, v->peer, CLRCODE_RST "developed by &mini \\exe");
+			server_send_msg(v->server, v->peer, CLRCODE_RST "version: v &1101");
+			server_send_msg(v->server, v->peer, CLRCODE_RST "betterserver-fixed: @v1.1 (v1.1.1)");
+			server_send_msg(v->server, v->peer, CLRCODE_GRA "public beta");
+			server_send_msg(v->server, v->peer, CLRCODE_RST "you can report any bugs in github repo.");
+			server_send_msg(v->server, v->peer, CLRCODE_RST "-------------------");
+			break;
+		}
+
 		/* Does he know? */
 		case CMD_STINK:
 		{
@@ -847,8 +860,7 @@ bool server_cmd_handle(Server* server, unsigned long hash, PeerData* v, String* 
 
 			RAssert(server_broadcast_msg(v->server, 0, format));
 			break;
-		}
-
+		}	
 	}
 
 	return true;
