@@ -1,18 +1,10 @@
-\# Changelog
+\## v1.1.1
 
 
 
-\## v1.1.0
+\- Added new `.ver` command
 
+\- Fixed bug with empty `g\_config.motd`
 
-
-\- Added "chatfix" config option
-
-\- Added "sender" argument to server\_broadcast\_msg
-
-\- Fixed chat message handling in game states
-
-\- Updated Server.c and Lobby.c for sender support
-
-
+\- Fixed `server\_disconnect` logic in Server.c (line 453)
 
