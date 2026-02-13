@@ -171,9 +171,10 @@ bool lobby_state_handle(PeerData* v, Packet* packet)
 			server_send_msg(v->server, v->peer, msg);
 			server_send_msg(v->server, v->peer, "-----------------------");
 			server_send_msg(v->server, v->peer, CLRCODE_GRA "type .help for command list~");
-			if(g_config.motd[0] != '\0')
-				server_send_msg(v->server, v->peer, g_config.motd);
+			server_send_msg(v->server, v->peer, g_config.motd);
 
+			if (v->mod_tool)
+				server_send_msg(v->server, v->peer, CLRCODE_RED "your mod is disallowed on this server" CLRCODE_RST);
 			if (v->op)
 				server_send_msg(v->server, v->peer, CLRCODE_GRN "you're an operator on this server" CLRCODE_RST);
 			break;
@@ -351,7 +352,6 @@ bool lobby_state_handle(PeerData* v, Packet* packet)
 					server_broadcast_msg(v->server, 0, "type " CLRCODE_GRN ".yes~ or ignore");
 					server_broadcast_msg(v->server, 0, "results will be summarized in " CLRCODE_GRA "20~ sec");
 					server_broadcast_msg(v->server, 0, "-----------------------");
-
 					vote_add(&v->server->lobby.vote, v->id);
 					v->vote_cooldown = 30 * TICKSPERSEC;
 					break;
@@ -498,7 +498,6 @@ bool lobby_state_handle(PeerData* v, Packet* packet)
 					server_broadcast_msg(v->server, 0, "type " CLRCODE_GRN ".yes~ or ignore");
 					server_broadcast_msg(v->server, 0, "results will be summarized in " CLRCODE_GRA "20~ sec");
 					server_broadcast_msg(v->server, 0, "-----------------------");
-
 					vote_add(&v->server->lobby.vote, v->id);
 					v->vote_cooldown = 30 * TICKSPERSEC;
 				}
@@ -625,8 +624,6 @@ bool lobby_init(Server* server)
 		{
 			if (v->id != server->game.exe)
 				v->exe_chance += 2 + rand() % 5;
-			else
-				v->exe_chance = 1 + rand() % 1;
 
 			Packet pack;
 			PacketCreate(&pack, SERVER_LOBBY_EXE_CHANCE);
