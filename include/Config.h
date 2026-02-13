@@ -32,9 +32,10 @@ typedef struct
 	bool	pride;
 	bool 	map_list[20];
 	Mutex	map_list_lock;
-	bool	chatfix;
 
 	char 	motd[256];
+	
+	bool	chatfix;
 } Config;
 
 SERVER_API extern Config g_config;
