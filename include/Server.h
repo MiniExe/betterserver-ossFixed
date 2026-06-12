@@ -17,6 +17,9 @@
 
 #define TICKSPERSEC 60
 #define BUILD_VERSION 1101
+
+#define BRACKET "-----------------------"
+
 #define STR_HELPER(x) #x
 #define STRINGIFY(x) STR_HELPER(x)
 

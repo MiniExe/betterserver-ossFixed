@@ -1598,10 +1598,8 @@ bool game_player_tick(Server* server)
 		if (!(data->plr.flags & PLAYER_ESCAPED))
 		{
 			data->plr.timeout += server->delta;
-			float limit = (g_config.antiafk && data->id != server->game.exe) ? 30.f : 4.f;
-
-			if (data->plr.timeout >= limit * TICKSPERSEC)
-				server_disconnect(server, data->peer, DR_OTHER, limit == 30.f ? "AFK 30 seconds" : NULL);
+			if (data->plr.timeout >= 4.f * TICKSPERSEC)
+				server_disconnect(server, data->peer, DR_AFKTIMEOUT, NULL);
 			continue;
 		}
 
